@@ -40,8 +40,9 @@ async function inserirDadosNoBancoDeDados(data) {
       );
 
       if (existe.length > 0) {         
-          await connection.execute("UPDATE cost_center SET costCenterId = ?, description = ? WHERE costCenterId = ?", [
-
+          await connection.execute("UPDATE cost_center SET description = ? WHERE costCenterId = ?", [
+            item.description,
+            item.costCenterId
           ]);    
       } else {
         const query =

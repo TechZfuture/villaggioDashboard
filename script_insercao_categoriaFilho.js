@@ -40,7 +40,7 @@ async function inserirDadosNoBancoDeDados(data) {
       );
 
       if (existe.length > 0) {         
-          await connection.execute("UPDATE child_category SET id = ?, name = ?, referenceCode = ?, type = ?, subgroupId = ?, subgroupName = ?, groupType = ?, referenceCode_key = ? WHERE child_id = ?", [
+          await connection.execute("UPDATE child_category SET id = ?, name = ?, reference_code = ?, type = ?, subgroup_id = ?, subgroup_name = ?, group_type = ?, reference_code_key = ? WHERE child_id = ?", [
             item.order,
             item.name,
             item.referenceCode || null,
@@ -53,7 +53,7 @@ async function inserirDadosNoBancoDeDados(data) {
           ]);    
       } else {
         const query =
-          "INSERT INTO child_category (id, child_id, name, referenceCode, type, subgroupId, subgroupName, groupType, referenceCode_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          "INSERT INTO child_category (id, child_id, name, reference_code, type, subgroup_id, subgroup_name, group_type, reference_code_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         await connection.query(query, [
           item.order,
           item.id,

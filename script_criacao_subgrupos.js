@@ -35,17 +35,17 @@ async function inserirDadosNoBancoDeDados(data) {
     for (const item of data) {
       if (item.subgroupId != null) {
         const [existe] = await connection.execute(
-          "SELECT * FROM subcategory WHERE subgroupId = ?",
+          "SELECT * FROM subcategory WHERE subgroup_id = ?",
           [item.subgroupId || null]
         );
 
         if (existe.length > 0) {
           await connection.execute(
-            "UPDATE subcategory SET name = ?, subgroupId = ? WHERE subgroupId = ?",
+            "UPDATE subcategory SET name = ?, subgroup_id = ? WHERE subgroup_id = ?",
             [item.subgroupName || null, item.subgroupId || null, item.subgroupId || null]
           );
         } else {
-          const query = "INSERT INTO subcategory (name, subgroupId) VALUES (?, ?)";
+          const query = "INSERT INTO subcategory (name, subgroup_id) VALUES (?, ?)";
           await connection.query(query, [item.subgroupName || null, item.subgroupId || null]);
         }
       }
