@@ -10,3 +10,19 @@ Criação da tabela de centro de custo -  OK
 STAKEHODLER
 
 Criação da tabela do stakeholder - 
+
+PAGAMENTOS A RECEBER
+
+H - Consulta recebimento em aberto
+
+PAGAMENTOS RECEBIDOS
+
+Villagio Paradiso Guarajuba SPE LTDA
+
+d96918f6-1542-4389-b623-00c90043698a
+
+RAFAEL DE BRITO SANT
+
+"entryId": "8d536e41-8e25-47f5-b6bb-020e7373315e", - contas recebidas
+
+Cora Sociedade de Crédito Direto S.A

@@ -7,7 +7,7 @@ create table parent_category(
 
 create table child_category (
 	id int,
-    child_id varchar(40),
+    child_id varchar(40) key,
     name varchar(40),
     reference_code varchar(10),
     type char(3),
@@ -27,4 +27,8 @@ create table subcategory(
 	name varchar(50),
     subgroup_id varchar(40) key,
     foreign key (subgroup_id) references subcategory_aux(subgroup_id)
+);
+
+create table child_category_aux(
+	child_id varchar(40) key
 );

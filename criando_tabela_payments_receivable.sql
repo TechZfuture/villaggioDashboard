@@ -42,4 +42,3 @@ create table payments_receivable(
      foreign key (stakeholder_id) references stakeholder(id)
  )	
  
- 
