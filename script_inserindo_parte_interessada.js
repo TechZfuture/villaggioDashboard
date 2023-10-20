@@ -35,18 +35,18 @@ async function inserirDadosNoBancoDeDados(data) {
   try {
     for (const item of data) {
       const [existe] = await connection.execute(
-        `SELECT * FROM stakeholder WHERE stakeholder_id = ?`,
+        `SELECT * FROM stakeholder WHERE id = ?`,
         [item.id]
       );
 
       if (existe.length > 0) {
         await connection.execute(
-          `UPDATE stakeholder SET is_deleted = ?, name = ?, email = ?, phone_number = ?, 
+          `UPDATE stakeholder SET is_deleted = ?, name = ?, email = ?, phone = ?, 
           document_type = ?, document_number = ?, 
-          comunication_name = ?, commnication_email = ?, commnication_phone = ?, comunication_cell_phone = ?, comunication_website = ?, 
+          comunication_contact_name = ?, comunication_email = ?, comunication_phone = ?, comunication_cell_phone = ?, comunication_website = ?, 
           address_line1 = ?, address_line2 = ?, address_number = ?, address_district = ?, address_city = ?, address_state = ?, address_zip_code = ?, address_country = ?, address_ibge_code = ?, 
           bank_name = ?, bank_agency = ?, bank_account_number = ?, bank_account_type = ?, 
-          company_name = ?, company_municipal_inscrition = ? WHERE stakeholder_id = ?`,
+          company_name = ?, company_municipal_inscription = ? WHERE id = ?`,
           [
             item.isDeleted,
             item.name,
@@ -57,8 +57,8 @@ async function inserirDadosNoBancoDeDados(data) {
             item.communication.contactName || null,
             item.communication.email || null,
             item.communication.phone || null,
-            item.communication.cell_phone || null,
-            item.communication.website || null,
+            item.communication.cellPhone || null,
+            item.communication.webSite || null,
             item.address.line1 || null,
             item.address.line2 || null,
             item.address.number || null,
@@ -78,9 +78,9 @@ async function inserirDadosNoBancoDeDados(data) {
           ]
         );
       } else {
-        const query = `INSERT INTO stakeholder (type, stakeholder_id, is_deleted, name, email, phone_number, document_type, document_number, comunication_name, comunication_email, comunication_phone, comunication_cell_phone, comunication_website,
+        const query = `INSERT INTO stakeholder (type, id, is_deleted, name, email, phone, document_type, document_number, comunication_contact_name, comunication_email, comunication_phone, comunication_cell_phone, comunication_website,
             address_line1, address_line2, address_number, address_district, address_city, address_state, address_zip_code, address_country, address_ibge_code, bank_name, bank_agency, bank_account_number,
-            bank_account_type, company_name, company_municipal_inscrition) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            bank_account_type, company_name, company_municipal_inscription) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         await connection.query(query, 
           [
             item.type, 
@@ -94,8 +94,8 @@ async function inserirDadosNoBancoDeDados(data) {
             item.communication.contactName,
             item.communication.email,
             item.communication.phone,
-            item.communication.cell_phone,
-            item.communication.website,
+            item.communication.cellphone,
+            item.communication.webSite,
             item.address.line1,
             item.address.line2,
             item.address.number,

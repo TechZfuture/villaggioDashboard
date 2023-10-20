@@ -1,0 +1,12 @@
+CATEGORIAS --
+
+Criação das tabelas de categorias - OK
+Link das tabelas de categorias - OK
+
+CENTRO DE CUSTO --
+
+Criação da tabela de centro de custo -  OK
+
+STAKEHODLER
+
+Criação da tabela do stakeholder - 

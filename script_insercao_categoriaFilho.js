@@ -41,7 +41,7 @@ async function inserirDadosNoBancoDeDados(data) {
 
       if (existe.length > 0) {         
           await connection.execute("UPDATE child_category SET id = ?, name = ?, reference_code = ?, type = ?, subgroup_id = ?, subgroup_name = ?, group_type = ?, reference_code_key = ? WHERE child_id = ?", [
-            item.order,
+            item.order || null,
             item.name,
             item.referenceCode || null,
             item.type,

@@ -10,7 +10,7 @@ const dbConfig = {
 // Função para buscar os dados da API
 async function buscarDadosDaAPI() {
   const apiToken = "0C1F3E7F408A4B6B95ADCA50E36BDE9B";
-  const apiUrl = `https://api.nibo.com.br/empresas/v1/costcenters?apitoken=${apiToken}`;
+  const apiUrl = `https://api.nibo.com.br/empresas/v1/schedules/categories?apitoken=${apiToken}`;
 
   try {
     const response = await fetch(apiUrl);
@@ -35,21 +35,20 @@ async function inserirDadosNoBancoDeDados(data) {
   try {
     for (const item of data) {
       const [existe] = await connection.execute(
-        "SELECT * FROM cost_center WHERE cost_center_id = ?",
-        [item.costCenterId]
+        "SELECT * FROM child_category_aux WHERE child_id = ?",
+        [item.id]
       );
 
       if (existe.length > 0) {         
-          await connection.execute("UPDATE cost_center SET description = ? WHERE cost_center_id = ?", [
-            item.description,
-            item.costCenterId
+          await connection.execute("UPDATE child_category_aux SET child_id = ? WHERE child_id = ?", [
+
+            item.id
           ]);    
       } else {
         const query =
-          "INSERT INTO cost_Center (cost_center_id, description) VALUES (?, ?)";
+          "INSERT INTO child_category_aux (child_id) VALUES (?)";
         await connection.query(query, [
-            item.costCenterId,
-            item.description
+          item.id,
         ]);
       }
     }
