@@ -1,21 +1,20 @@
-create table internal_incoming_bills(
+create table internal_payments(
 	entry_id varchar(40),
     bank_balance_date_is_greater_than_entry_date boolean,
     is_virtual boolean,
     account_id varchar(40),
-    account_name varchar(40),
+    account_name varchar(50),
     account_is_deleted boolean,
     date datetime,
-    identifier varchar(100),
+    identifier varchar(40),
     value decimal(12, 2),
-    check_number varchar(100),
     is_reconciliated boolean,
     is_transfer boolean,
     is_flagged boolean
 );
 
-create table external_incoming_bills(
-	entry_id varchar(40),
+create table external_payments(
+	entry_id varchar(50),
     bank_balance_date_is_greater_than_entry_date boolean,
     schedule_id varchar(40),
     is_virtual boolean,
@@ -38,9 +37,12 @@ create table external_incoming_bills(
     check_number varchar(20),
     is_reconciliated boolean,
     is_transfer boolean,
-    is_flagged boolean,
+    is_flagged boolean, 
     cost_center_id varchar(40), 
     cost_center_name varchar(50),
     cost_center_percent decimal(12, 2),
     cost_center_value decimal(12, 2)
 );
+
+select count(*) from external_payments;
+select count(*) from internal_payments;
