@@ -126,11 +126,40 @@ async function inserirDadosNoBancoDeDados(data) {
   }
 }
 
+// Função para excluir registros que não existem na API
+async function excluirRegistrosAusentesNoBancoDeDados(dataFromAPI) {
+  const connection = await mysql.createConnection(dbConfig);
+
+  try {
+      // Passo 1: Buscar todos os IDs no banco de dados
+      const [existingRecords] = await connection.execute("SELECT id FROM stakeholder");
+
+      // Extrair os IDs dos registros no banco de dados
+      const existingRecordIds = existingRecords.map(record => record.id);
+
+      // Passo 2: Comparar os IDs com os IDs da API e excluir registros ausentes
+      for (const id of existingRecordIds) {
+          if (!dataFromAPI.some(item => item.id === id)) {
+              // O registro não existe na resposta da API, então vamos excluí-lo do banco de dados
+              await connection.execute("DELETE FROM stakeholder WHERE id = ?", [id]);
+              console.log(`Registro com ID ${id} foi excluído.`);
+          }
+      }
+
+      console.log("Conclusão da verificação e exclusão de registros ausentes.");
+  } catch (error) {
+      console.error("Erro ao verificar e excluir registros ausentes:", error);
+  } finally {
+      connection.end(); // Feche a conexão com o banco de dados
+  }
+}
+
 (async () => {
   try {
     const dadosDaAPI = await buscarDadosDaAPI();
     if (dadosDaAPI.length > 0) {
       await inserirDadosNoBancoDeDados(dadosDaAPI);
+      await excluirRegistrosAusentesNoBancoDeDados(dadosDaAPI);
     }
   } catch (error) {
     console.error("Erro no processo:", error);

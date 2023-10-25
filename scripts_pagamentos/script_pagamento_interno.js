@@ -88,12 +88,43 @@ async function inserirDadosNoBancoDeDados(data) {
       connection.end(); // Feche a conexão com o banco de dados
     }
   }
+
+  // Função para deletar dados do banco de dados que não existem mais na API
+async function deletarDadosNaoPresentesNaAPI(data) {
+  const connection = await mysql.createConnection(dbConfig);
+
+  try {
+    // Busque todos os registros no banco de dados
+    const [dbData] = await connection.execute('SELECT entry_id FROM internal_payments');
+
+    // Crie um conjunto (Set) com os entry_ids dos registros no banco de dados
+    const dbDataEntryIds = new Set(dbData.map((item) => item.entry_id));
+
+    // Crie um conjunto (Set) com os entry_ids dos registros da API
+    const apiDataEntryIds = new Set(data.map((item) => item.entryId));
+
+    // Encontre os entry_ids que estão no banco de dados, mas não na API
+    const entryIdsToDelete = [...dbDataEntryIds].filter((entryId) => !apiDataEntryIds.has(entryId));
+
+    // Deletar os registros que não existem mais na API
+    for (const entryIdToDelete of entryIdsToDelete) {
+      await connection.execute('DELETE FROM internal_payments WHERE entry_id = ?', [entryIdToDelete]);
+    }
+
+    console.log('Dados deletados do banco de dados com sucesso.');
+  } catch (error) {
+    console.error('Erro ao deletar dados do banco de dados:', error);
+  } finally {
+    connection.end(); // Feche a conexão com o banco de dados
+  }
+}
   
   (async () => {
     try {
       const dadosDaAPI = await buscarDadosDaAPI();
       if (dadosDaAPI.length > 0) {
         await inserirDadosNoBancoDeDados(dadosDaAPI);
+        await deletarDadosNaoPresentesNaAPI(dadosDaAPI);
       }
     } catch (error) {
       console.error("Erro no processo:", error);

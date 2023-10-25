@@ -59,11 +59,42 @@ async function inserirDadosNoBancoDeDados(data) {
   }
 }
 
+// Função para deletar dados que não existem mais na API
+async function deletarDadosNoBancoDeDados(data) {
+  const connection = await mysql.createConnection(dbConfig);
+
+  try {
+    // Obter todos os registros existentes no banco de dados
+    const [registrosNoBanco] = await connection.execute("SELECT subgroup_id FROM subcategory");
+
+    // Criar um conjunto (Set) com os subgroupId presentes na API
+    const subgroupIdSet = new Set(data.map((item) => item.subgroupId));
+
+    // Verificar cada registro do banco de dados e excluir se não existir na API
+    for (const registroNoBanco of registrosNoBanco) {
+      if (!subgroupIdSet.has(registroNoBanco.subgroup_id)) {
+        await connection.execute(
+          "DELETE FROM subcategory WHERE subgroup_id = ?",
+          [registroNoBanco.subgroup_id]
+        );
+        console.log(`Registro com subgroup_id ${registroNoBanco.subgroup_id} foi excluído.`);
+      }
+    }
+
+    console.log("Dados deletados no banco de dados com sucesso.");
+  } catch (error) {
+    console.error("Erro ao deletar dados no banco de dados:", error);
+  } finally {
+    connection.end();
+  }
+}
+
 (async () => {
     try {
       const dadosDaAPI = await buscarDadosDaAPI();
       if (dadosDaAPI.length > 0) {
         await inserirDadosNoBancoDeDados(dadosDaAPI);
+        await deletarDadosNoBancoDeDados(dadosDaAPI);
       }
     } catch (error) {
       console.error("Erro no processo:", error);

@@ -76,12 +76,43 @@ async function inserirDadosNoBancoDeDados(data) {
   }
 }
 
+// Função para deletar dados que não existem mais na API
+async function deletarDadosNoBancoDeDados(data) {
+  const connection = await mysql.createConnection(dbConfig);
+
+  try {
+    // Obter todos os registros existentes no banco de dados
+    const [registrosNoBanco] = await connection.execute("SELECT child_id FROM child_category");
+
+    // Criar um conjunto (Set) com os IDs dos registros obtidos na API
+    const idsNaAPI = new Set(data.map((item) => item.id));
+
+    // Iterar sobre os registros do banco de dados e excluir se o ID não estiver na API
+    for (const registroNoBanco of registrosNoBanco) {
+      if (!idsNaAPI.has(registroNoBanco.child_id)) {
+        await connection.execute(
+          "DELETE FROM child_category WHERE child_id = ?",
+          [registroNoBanco.child_id]
+        );
+        console.log(`Registro com child_id ${registroNoBanco.child_id} foi excluído.`);
+      }
+    }
+
+    console.log("Dados deletados no banco de dados com sucesso.");
+  } catch (error) {
+    console.error("Erro ao deletar dados no banco de dados:", error);
+  } finally {
+    connection.end();
+  }
+}
+
 // Executa o processo
 (async () => {
   try {
     const dadosDaAPI = await buscarDadosDaAPI();
     if (dadosDaAPI.length > 0) {
       await inserirDadosNoBancoDeDados(dadosDaAPI);
+      await deletarDadosNoBancoDeDados(dadosDaAPI);
     }
   } catch (error) {
     console.error("Erro no processo:", error);

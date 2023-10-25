@@ -91,11 +91,40 @@ async function inserirDadosNoBancoDeDados(data) {
   }
 }
 
+async function deletarDadosExcedentesNoBanco(data) {
+  const connection = await mysql.createConnection(dbConfig);
+
+  try {
+    // Obtém todos os registros no banco de dados
+    const [rows] = await connection.execute("SELECT entry_id FROM internal_incoming_bills");
+
+    // Obtém os entry_id dos dados da API
+    const entryIdsAPI = data.map(item => item.entryId);
+
+    // Encontra entry_id no banco de dados que não estão na API
+    const entryIdsNoAPI = rows.map(row => row.entry_id).filter(entryId => !entryIdsAPI.includes(entryId));
+
+    if (entryIdsNoAPI.length > 0) {
+      // Deleta os registros no banco que não estão mais na API
+      await connection.execute("DELETE FROM internal_incoming_bills WHERE entry_id IN (?)", [entryIdsNoAPI]);
+      console.log(`Foram excluídos ${entryIdsNoAPI.length} registros do banco.`);
+    } else {
+      console.log("Nenhum registro a ser excluído do banco.");
+    }
+  } catch (error) {
+    console.error("Erro ao excluir dados excedentes do banco:", error);
+  } finally {
+    connection.end();
+  }
+}
+
+
 (async () => {
   try {
     const dadosDaAPI = await buscarDadosDaAPI();
     if (dadosDaAPI.length > 0) {
       await inserirDadosNoBancoDeDados(dadosDaAPI);
+      await deletarDadosExcedentesNoBanco(dadosDaAPI);
     }
   } catch (error) {
     console.error("Erro no processo:", error);
