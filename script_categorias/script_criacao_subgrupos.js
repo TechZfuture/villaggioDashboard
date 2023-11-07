@@ -35,18 +35,26 @@ async function inserirDadosNoBancoDeDados(data) {
     for (const item of data) {
       if (item.subgroupId != null) {
         const [existe] = await connection.execute(
-          "SELECT * FROM subcategory WHERE subgroup_id = ?",
+          "SELECT * FROM subcategory WHERE subgroupId = ?",
           [item.subgroupId || null]
         );
 
         if (existe.length > 0) {
           await connection.execute(
-            "UPDATE subcategory SET name = ?, subgroup_id = ? WHERE subgroup_id = ?",
-            [item.subgroupName || null, item.subgroupId || null, item.subgroupId || null]
+            "UPDATE subcategory SET name = ?, subgroupId = ? WHERE subgroupId = ?",
+            [
+              item.subgroupName || null,
+              item.subgroupId || null,
+              item.subgroupId || null,
+            ]
           );
         } else {
-          const query = "INSERT INTO subcategory (name, subgroup_id) VALUES (?, ?)";
-          await connection.query(query, [item.subgroupName || null, item.subgroupId || null]);
+          const query =
+            "INSERT INTO subcategory (name, subgroupId) VALUES (?, ?)";
+          await connection.query(query, [
+            item.subgroupName || null,
+            item.subgroupId || null,
+          ]);
         }
       }
     }
@@ -65,7 +73,9 @@ async function deletarDadosNoBancoDeDados(data) {
 
   try {
     // Obter todos os registros existentes no banco de dados
-    const [registrosNoBanco] = await connection.execute("SELECT subgroup_id FROM subcategory");
+    const [registrosNoBanco] = await connection.execute(
+      "SELECT subgroupId FROM subcategory"
+    );
 
     // Criar um conjunto (Set) com os subgroupId presentes na API
     const subgroupIdSet = new Set(data.map((item) => item.subgroupId));
@@ -74,10 +84,12 @@ async function deletarDadosNoBancoDeDados(data) {
     for (const registroNoBanco of registrosNoBanco) {
       if (!subgroupIdSet.has(registroNoBanco.subgroup_id)) {
         await connection.execute(
-          "DELETE FROM subcategory WHERE subgroup_id = ?",
-          [registroNoBanco.subgroup_id]
+          "DELETE FROM subcategory WHERE subgroupId = ?",
+          [registroNoBanco.subgroupId]
         );
-        console.log(`Registro com subgroup_id ${registroNoBanco.subgroup_id} foi excluído.`);
+        console.log(
+          `Registro com subgroupId ${registroNoBanco.subgroupId} foi excluído.`
+        );
       }
     }
 
@@ -90,14 +102,13 @@ async function deletarDadosNoBancoDeDados(data) {
 }
 
 (async () => {
-    try {
-      const dadosDaAPI = await buscarDadosDaAPI();
-      if (dadosDaAPI.length > 0) {
-        await inserirDadosNoBancoDeDados(dadosDaAPI);
-        await deletarDadosNoBancoDeDados(dadosDaAPI);
-      }
-    } catch (error) {
-      console.error("Erro no processo:", error);
+  try {
+    const dadosDaAPI = await buscarDadosDaAPI();
+    if (dadosDaAPI.length > 0) {
+      await inserirDadosNoBancoDeDados(dadosDaAPI);
+      await deletarDadosNoBancoDeDados(dadosDaAPI);
     }
-  })();
-  
+  } catch (error) {
+    console.error("Erro no processo:", error);
+  }
+})();

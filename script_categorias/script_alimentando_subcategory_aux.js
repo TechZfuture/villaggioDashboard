@@ -36,17 +36,17 @@ async function inserirDadosNoBancoDeDados(data) {
     for (const item of data) {
       if (item.subgroupId != null) {
         const [existe] = await connection.execute(
-          "SELECT * FROM subcategory_aux WHERE subgroup_id = ?",
+          "SELECT * FROM subcategory_aux WHERE subgroupId = ?",
           [item.subgroupId || null]
         );
 
         if (existe.length > 0) {
           await connection.execute(
-            "UPDATE subcategory_aux SET subgroup_id = ? WHERE subgroup_id = ?",
+            "UPDATE subcategory_aux SET subgroupId = ? WHERE subgroupId = ?",
             [item.subgroupId || null, item.subgroupId || null]
           );
         } else {
-          const query = "INSERT INTO subcategory_aux (subgroup_id) VALUES (?)";
+          const query = "INSERT INTO subcategory_aux (subgroupId) VALUES (?)";
           await connection.query(query, [item.subgroupId || null]);
         }
       }
@@ -67,7 +67,7 @@ async function deletarDadosNoBancoDeDados(data) {
   try {
     // Obter todos os registros existentes no banco de dados
     const [registrosNoBanco] = await connection.execute(
-      "SELECT subgroup_id FROM subcategory_aux"
+      "SELECT subgroupId FROM subcategory_aux"
     );
 
     // Converter os resultados em um conjunto de subgroupId
@@ -77,7 +77,7 @@ async function deletarDadosNoBancoDeDados(data) {
     for (const subgroupId of subgroupIdSet) {
       if (!data.some((item) => item.subgroupId === subgroupId)) {
         await connection.execute(
-          "DELETE FROM subcategory_aux WHERE subgroup_id = ?",
+          "DELETE FROM subcategory_aux WHERE subgroupId = ?",
           [subgroupId]
         );
         console.log(`Registro com subgroup_id ${subgroupId} foi excluído.`);

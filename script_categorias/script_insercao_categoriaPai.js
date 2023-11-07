@@ -41,12 +41,12 @@ async function inserirDadosNoBancoDeDados(data) {
 
       if (existe.length > 0) {
         await connection.execute(
-          "UPDATE parent_category SET id = ?, name = ?, reference_code = ? WHERE parent_id = ?",
+          "UPDATE parent_category SET id = ?, name = ?, referenceCode = ? WHERE parent_id = ?",
           [item.referenceCode, item.name, item.referenceCode, item.id]
         );
       } else {
         const query =
-          "INSERT INTO parent_category (id, parent_id, name, reference_code) VALUES (?, ?, ?, ?)";
+          "INSERT INTO parent_category (id, parent_id, name, referenceCode) VALUES (?, ?, ?, ?)";
         await connection.query(query, [item.referenceCode, item.id, item.name, item.referenceCode]);
       }
     }

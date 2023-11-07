@@ -38,7 +38,5 @@ create table payments_receivable(
      has_schedule_invoice boolean,
      auto_generate_nfse_type int,
      is_payment_scheduled boolean,
-     foreign key (category_id) references child_category_aux(child_id),
-     foreign key (stakeholder_id) references stakeholder(id)
  )	
  

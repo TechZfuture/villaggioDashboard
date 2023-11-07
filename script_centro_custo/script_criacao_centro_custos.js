@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise');
 
 const dbConfig = {
-  server: 'localhost',
+  host: 'localhost',
   user: 'root',
   password: '',
   database: 'sistema',
@@ -34,23 +34,23 @@ async function inserirDadosNoBancoDeDados(data) {
 
   try {
     for (const item of data) {
-      const [existe] = await connection.execute(`SELECT * FROM cost_center WHERE cost_center_id = ?`, [item.costCenterId || null]);
+      const [existe] = await connection.execute(`SELECT * FROM cost_center WHERE costCenterId = ?`, [item.costCenterId|| null]);
 
       if (existe.length > 0) {
         await connection.execute(`
           UPDATE cost_center
           SET description = ?
-          WHERE cost_center_id = ?
+          WHERE costCenterId = ?
         `, [
           item.description || null,
           item.costCenterId || null
         ]);
       } else {
         const query = `
-          INSERT INTO cost_center (cost_center_id, description)
+          INSERT INTO cost_center (costCenterId, description)
           VALUES (?, ?)
         `;
-        await connection.query(query, [item.costCenterId || null, item.description || null])
+        await connection.query(query, [item.costCenterId || null, item.description || null]);
       }
     }
 
@@ -62,31 +62,23 @@ async function inserirDadosNoBancoDeDados(data) {
   }
 }
 
-// Função para inserir os dados no banco de dados SQL Server
-async function inserirDadosNoBancoDeDados(data) {
-  // ... Código para inserir dados no banco de dados (mesmo código que você já tem)
-}
-
 // Função para deletar dados do banco que não existem mais na API
 async function deletarDadosNoBancoDeDados(data) {
   const connection = await mysql.createConnection(dbConfig);
 
   try {
     // Busque todos os registros no banco de dados
-    const [dbData] = await connection.execute('SELECT cost_center_id FROM cost_center');
+    const [dbData] = await connection.execute('SELECT costCenterId FROM cost_center');
 
     // Crie um conjunto (Set) com os IDs dos registros no banco de dados
-    const dbDataIds = new Set(dbData.map((item) => item.cost_center_id));
-
-    // Crie um conjunto (Set) com os IDs dos registros da API
-    const apiDataIds = new Set(data.map((item) => item.costCenterId));
+    const dbDataIds = new Set(dbData.map((item) => item.costCenterId));
 
     // Encontre os IDs que estão no banco de dados, mas não na API
-    const idsToDelete = [...dbDataIds].filter((id) => !apiDataIds.has(id));
+    const idsToDelete = [...dbDataIds].filter((id) => !data.some((item) => item.costCenterId === id));
 
     // Deletar os registros que não existem mais na API
     for (const idToDelete of idsToDelete) {
-      await connection.execute('DELETE FROM cost_center WHERE cost_center_id = ?', [idToDelete]);
+      await connection.execute('DELETE FROM cost_center WHERE costCenterId = ?', [idToDelete]);
     }
 
     console.log('Dados deletados do banco de dados com sucesso.');
@@ -103,7 +95,7 @@ async function deletarDadosNoBancoDeDados(data) {
     const dadosDaAPI = await buscarDadosDaAPI();
     if (dadosDaAPI.length > 0) {
       await inserirDadosNoBancoDeDados(dadosDaAPI);
-      await deletarDadosNoBancoDeDados(dadosDaAPI);
+     //await deletarDadosNoBancoDeDados(dadosDaAPI);
     }
   } catch (error) {
     console.error('Erro no processo:', error);

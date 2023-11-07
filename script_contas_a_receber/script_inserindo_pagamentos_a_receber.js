@@ -158,12 +158,12 @@ async function deletarDadosNoBancoDeDados(data) {
     // Obter todos os registros existentes no banco de dados
     const [registrosNoBanco] = await connection.execute("SELECT schedule_id FROM payments_receivable");
 
-    // Criar um conjunto (Set) com os IDs dos registros obtidos na API
-    const idsNaAPI = new Set(data.map((item) => item.scheduleId));
+    // Criar um conjunto (Set) com os IDs dos registros no banco de dados
+    const idsNoBanco = new Set(data.map((item) => item.scheduleId));
 
     // Iterar sobre os registros do banco de dados e excluir se o ID não estiver na API
     for (const registroNoBanco of registrosNoBanco) {
-      if (!idsNaAPI.has(registroNoBanco.scheduleId)) {
+      if (!idsNoBanco.has(registroNoBanco.scheduleId)) { // Correção: verifique se o ID do banco NÃO está na API
         await connection.execute("DELETE FROM payments_receivable WHERE schedule_id = ?", [registroNoBanco.scheduleId || null]);
         console.log(`Registro com schedule_id ${registroNoBanco.scheduleId || null} foi excluído.`);
       }
@@ -176,7 +176,6 @@ async function deletarDadosNoBancoDeDados(data) {
     connection.end(); // Feche a conexão com o banco de dados
   }
 }
-
 
   // Executa o processo
 (async () => {
