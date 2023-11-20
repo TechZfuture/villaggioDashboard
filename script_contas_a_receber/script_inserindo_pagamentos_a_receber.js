@@ -1,53 +1,48 @@
 const mysql = require("mysql2/promise");
 
-const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "sistema",
-};
+const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
+const apitoken = require("../informacoesAPI/informacoes");
 
-// Função para buscar os dados da API
 async function buscarDadosDaAPI() {
-    const apiToken = "0C1F3E7F408A4B6B95ADCA50E36BDE9B";
-    const apiUrl = `https://api.nibo.com.br/empresas/v1/schedules/credit/opened?apitoken=${apiToken}`;
-  
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error(
-          `Erro na solicitação: ${response.status} ${response.statusText}`
-        );
-      }
-  
-      const data = await response.json();
-      return data.items; // Retorna apenas o array de objetos "items"
-    } catch (error) {
-      console.error("Erro ao buscar dados da API:", error);
-      return [];
-    }
+  const apiUrl = `https://api.nibo.com.br/empresas/v1/schedules/credit/opened?apitoken=${apitoken}`;
+
+  try {
+    const data = await (await fetch(apiUrl)).json();
+    return data.items || [];
+  } catch (error) {
+    console.error("Erro ao buscar dados da API:", error);
+    return [];
   }
+}
 
-  // Função para inserir os dados no banco de dados
+// Função para inserir os dados no banco de dados
 async function inserirDadosNoBancoDeDados(data) {
-    const connection = await mysql.createConnection(dbConfig);
-  
-    try {
-      for (const item of data) {
+  const connection = await mysql.createConnection(dbConfig);
+  let [atualizadas, inseridas] = [0, 0];
 
-        const [existe] = await connection.execute(
-          `SELECT * FROM payments_receivable id WHERE id = ?`,
-          [item.scheduleId]
-        );
-  
-        if (existe.length > 0) {
-          await connection.execute(
-            `UPDATE payments_receivable SET category_id = ?, category_name = ?, value = ?, type = ?, parent = ?, parent_id = ?, schedule_id = ?, type_operation = ?, is_entry = ?, is_bill = ?,
-            is_debite_node = ?, is_flagged = ?, is_dued = ?, due_date = ?, accrual_date = ?, schedule_date = ?, create_date = ?, is_paid = ?, cost_center_value_type = ?, paid_value = ?,
-            open_value = ?, stakeholder_id = ?, stakeholder_type = ?, stakeholder_name = ?, stakeholder_is_deleted = ?, description = ?, reference = ?, has_installment = ?, installment_id = ?,
-            has_recurrence = ?, has_open_entry_promise = ?, has_entry_promise = ?, auto_generate_entry_promise = ?, has_invoice = ?, has_pending_invoice = ?, has_schedule_invoice = ?,
-            auto_generate_nfse_type = ?, is_payment_scheduled = ? WHERE id = ?`,
-            [
+  try {
+    for (const item of data) {
+      const [existe] = await connection.execute(
+        `SELECT * FROM paymentsReceivable id WHERE id = ?`,
+        [item.scheduleId]
+      );
+
+      const query =
+        existe.length > 0
+          ? `UPDATE paymentsReceivable SET categoryId = ?, categoryName = ?, value = ?, type = ?, parent = ?, parentId = ?, scheduleId = ?, typeOperation = ?, isEntry = ?, isBill = ?,
+          isDebiteNote = ?, isFlagged = ?, isDued = ?, dueDate = ?, accrualDate = ?, scheduleDate = ?, createDate = ?, isPaid = ?, costCenterValueType = ?, paidValue = ?,
+          openValue = ?, stakeholderId = ?, stakeholderType = ?, stakeholderName = ?, stakeholderIsDeleted = ?, description = ?, reference = ?, hasInstallment = ?, installmentId = ?,
+          hasRecurrence = ?, hasOpenEntryPromise = ?, hasEntryPromise = ?, autoGenerateEntryPromise = ?, hasInvoice = ?, hasPendingInvoice = ?, hasScheduleInvoice = ?,
+          autoGenerateNfseType = ?, isPaymentScheduled = ? WHERE id = ?`
+          : `INSERT INTO paymentsReceivable (id, categoryId, categoryName, value, type, parent, parentId, scheduleId, typeOperation, isEntry, isBill, isDebiteNote, isFlagged,
+            isDued, dueDate, accrualDate, scheduleDate, createDate, isPaid, costCenterValueType, paidValue, openValue, stakeholderId, stakeholderType, stakeholderName,
+            stakeholderIsDeleted, description, reference, hasInstallment, installmentId, hasRecurrence, hasOpenEntryPromise, hasEntryPromise, autoGenerateEntryPromise,
+            hasInvoice, hasPendingInvoice, hasScheduleInvoice, autoGenerateNfseType, isPaymentScheduled) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const params =
+        existe.length > 0
+          ? [
               item.category.id || null,
               item.category.name || null,
               item.value || null,
@@ -88,15 +83,7 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isPaymentScheduled || null,
               item.scheduledId || null,
             ]
-          );
-        } else {
-          const query = `INSERT INTO payments_receivable (id, category_id, category_name, value, type, parent, parent_id, schedule_id, type_operation, is_entry, is_bill, is_debite_node, is_flagged,
-            is_dued, due_date, accrual_date, schedule_date, create_date, is_paid, cost_center_value_type, paid_value, open_value, stakeholder_id, stakeholder_type, stakeholder_name,
-            stakeholder_is_deleted, description, reference, has_installment, installment_id, has_recurrence, has_open_entry_promise, has_entry_promise, auto_generate_entry_promise,
-            has_invoice, has_pending_invoice, has_schedule_invoice, auto_generate_nfse_type, is_payment_scheduled) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-          await connection.query(query, 
-            [
+          : [
               item.scheduleId || null,
               item.category.id || null,
               item.category.name || null,
@@ -136,36 +123,42 @@ async function inserirDadosNoBancoDeDados(data) {
               item.hasScheduleInvoice,
               item.autoGenerateNFSeType,
               item.isPaymentScheduled,
-              item.id || null
-            ]
-            );
-        }
-      }
-  
-      console.log("Dados inseridos no banco de dados com sucesso.");
-    } catch (error) {
-      console.error("Erro ao inserir dados no banco de dados:", error);
-    } finally {
-      connection.end(); // Feche a conexão com o banco de dados
+              item.id || null,
+            ];
+
+      const [result] = await connection.execute(query, params);
+
+      existe.length > 0
+        ? (atualizadas += result.changedRows)
+        : (inseridas += result.affectedRows);
     }
+    console.log(
+      `\n${atualizadas} consultas atualizadas no banco de dados.\n${inseridas} consultas inseridas no banco de dados.`
+    );
+  } catch (error) {
+    console.error("Erro ao inserir dados no banco de dados:", error);
+  } finally {
+    connection.end(); // Feche a conexão com o banco de dados
   }
+}
 
 // Função para deletar dados que não existem mais na API
 async function deletarDadosNoBancoDeDados(data) {
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    // Obter todos os registros existentes no banco de dados
-    const [registrosNoBanco] = await connection.execute("SELECT schedule_id FROM payments_receivable");
-
-    // Criar um conjunto (Set) com os IDs dos registros no banco de dados
     const idsNoBanco = new Set(data.map((item) => item.scheduleId));
+    const registrosNoBanco = (
+      await connection.execute("SELECT scheduleId FROM paymentsReceivable")
+    )[0];
 
-    // Iterar sobre os registros do banco de dados e excluir se o ID não estiver na API
-    for (const registroNoBanco of registrosNoBanco) {
-      if (!idsNoBanco.has(registroNoBanco.scheduleId)) { // Correção: verifique se o ID do banco NÃO está na API
-        await connection.execute("DELETE FROM payments_receivable WHERE schedule_id = ?", [registroNoBanco.scheduleId || null]);
-        console.log(`Registro com schedule_id ${registroNoBanco.scheduleId || null} foi excluído.`);
+    for (const { scheduleId } of registrosNoBanco) {
+      if (!idsNoBanco.has(scheduleId)) {
+        await connection.execute(
+          "DELETE FROM paymentsReceivable WHERE scheduleId = ?",
+          [scheduleId]
+        );
+        console.log(`Registro com idChild ${idChild.id} foi excluído.`);
       }
     }
 
@@ -177,7 +170,7 @@ async function deletarDadosNoBancoDeDados(data) {
   }
 }
 
-  // Executa o processo
+// Executa o processo
 (async () => {
   try {
     const dadosDaAPI = await buscarDadosDaAPI();
