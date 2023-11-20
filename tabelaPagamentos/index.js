@@ -34,85 +34,52 @@ async function inserirDadosNoBancoDeDados(data) {
 
   try {
     for (const item of data) {
-      if (item.isTransfer === false) {
+      if (item.isTransfer === true) {
         const [existe] = await connection.execute(
-          "SELECT * FROM external_payments WHERE entry_id = ?",
+          "SELECT * FROM tabela_pagamentos WHERE id_entrada = ?",
           [item.entryId]
         );
 
         if (existe.length > 0) {
           await connection.execute(
-            `UPDATE external_payments SET bank_balance_date_is_greater_than_entry_date = ?,
-             schedule_id = ?, is_virtual = ?, account_id = ?, account_name = ?, account_is_deleted = ?, stakeholder_id = ?,
-             stakeholder_name = ?, stakeholder_is_deleted = ?, category_id = ?, category_name = ?, category_is_deleted = ?, category_type = ?, category_parent_id = ?, category_parent_name = ?,
-             date = ?, identifier = ?, value = ?, description = ?, check_number = ?, is_reconciliated = ?, is_transfer = ?, is_flagged = ?, cost_center_id = ?, cost_center_name = ?, cost_center_percent = ?, cost_center_value = ? where entry_id = ?`,
+            `UPDATE tabela_pagamentos SET id_conta_bancaria = ?, nome_conta_bancaria = ?, id_fornecedor = ?, nome_fornecedor = ?, id_categoria = ?, nome_categoria = ?, valor = ?,
+             tipo = ?, categoria_pai = ?, id_categoria_pai = ?, descricao = ?, data = ?, category_type = ?, category_parent_id = ?, category_parent_name = ? data = ? where id_entrada = ?`,
             [
-              item.bankBalanceDateIsGreaterThanEntryDate,
-              item.scheduleId || null,
-              item.isVirtual,
+              item.entryId,
               item.account.id || null,
               item.account.name || null,
-              item.account.isDeleted,
               item.stakeholder.id || null,
               item.stakeholder.name || null,
-              item.stakeholder.isDeleted,
               item.category.id || null,
               item.category.name || null,
-              item.category.isDeleted,
+              item.value || null,
               item.category.type || null,
-              item.categories[0].parentId || null,
               item.categories[0].parent || null,
+              item.categories[0].parentId || null,
+              item.description || null,
               item.date || null,
               item.identifier || null,
-              item.value || null,
-              item.description || null,
-              item.checkNum || null,
-              item.isReconciliated || null,
-              item.isTransfer,
-              item.isFlagged,
-              item.costCenter?.costCenterId || null,
-              item.costCenter?.costCenterDescription || null,
-              item.costCenters[0]?.percent || null,
-              item.costCenters[0]?.value || null,
-              item.entryId,
+              item.category.type || null,
             ]
           );
         } else {
-          const query = `INSERT INTO external_payments (entry_id, bank_balance_date_is_greater_than_entry_date,
-               schedule_id, is_virtual, account_id, account_name, account_is_deleted, stakeholder_id,
-                stakeholder_name, stakeholder_is_deleted, category_id, category_name, category_is_deleted, category_type, category_parent_id, category_parent_name,
-                date, identifier, value, description, check_number, is_reconciliated, is_transfer, is_flagged, cost_center_id, cost_center_name, cost_center_percent, cost_center_value) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+          const query = `INSERT INTO tabela_pagamentos (id_entrada, id_conta_bancaria, nome_conta_bancaria, id_fornecedor, nome_fornecedor, id_categoria, nome_categoria, valor, 
+            tipo, categoria_pai, id_categoria_pai, descricao, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
           await connection.query(query, [
             item.entryId,
-            item.bankBalanceDateIsGreaterThanEntryDate,
-            item.scheduleId || null,
-            item.isVirtual,
             item.account.id || null,
             item.account.name || null,
-            item.account.isDeleted,
             item.stakeholder.id || null,
             item.stakeholder.name || null,
-            item.stakeholder.isDeleted,
             item.category.id || null,
             item.category.name || null,
-            item.category.isDeleted,
-            item.category.type || null,
-            item.categories[0].parentId || null,
-            item.categories[0].parent || null,
-            item.date || null,
-            item.identifier || null,
             item.value || null,
+            item.category.type || null,
+            item.categories[0].parent || null,
+            item.categories[0].parentId || null,
             item.description || null,
-            item.checkNum || null,
-            item.isReconciliated || null,
-            item.isTransfer,
-            item.isFlagged,
-            item.costCenter?.costCenterId || null,
-            item.costCenter?.costCenterDescription || null,
-            item.costCenters[0]?.percent || null,
-            item.costCenters[0]?.value || null,
+            item.date || null,
           ]);
         }
       }
@@ -133,7 +100,7 @@ async function excluirRegistrosAusentesNoBancoDeDados(dataFromAPI) {
   try {
     // Passo 1: Buscar todos os IDs no banco de dados
     const [existingRecords] = await connection.execute(
-      "SELECT id FROM stakeholder"
+      "SELECT id_entrada FROM tabela_pagamentos"
     );
 
     // Extrair os IDs dos registros no banco de dados
@@ -141,9 +108,12 @@ async function excluirRegistrosAusentesNoBancoDeDados(dataFromAPI) {
 
     // Passo 2: Comparar os IDs com os IDs da API e excluir registros ausentes
     for (const id of existingRecordIds) {
-      if (!dataFromAPI.some((item) => item.id === id)) {
+      if (!dataFromAPI.some((item) => item.id_entrada === id)) {
         // O registro não existe na resposta da API, então vamos excluí-lo do banco de dados
-        await connection.execute("DELETE FROM stakeholder WHERE id = ?", [id]);
+        await connection.execute(
+          "DELETE FROM tabela_pagamentos WHERE id_entrada = ?",
+          [id]
+        );
         console.log(`Registro com ID ${id} foi excluído.`);
       }
     }

@@ -43,7 +43,7 @@ async function inserirDadosNoBancoDeDados(data) {
 
             if (existe.length > 0) {
                 await connection.execute(`UPDATE scheduled_payments SET category_id = ?, category_name = ?, category_type = ?, category_parent_id = ?, category_parent_name = ?, cost_center_id = ?, cost_center_percent = ?, cost_center_name = ?
-                , cost_center_is_deleted = ?, schedule_id = ?, type = ?, is_entry = ?, is_bill = ?, is_debit_note = ?, is_flagged = ?, is_dued = ?, due_date = ?, accrual_date = ?, schedule_date = ?, create_date = ?, value = ?, is_paid = ?,
+                , cost_center_is_deleted = ?, schedule_id = ?, type = ?, is_entry = ?, is_bill = ?, is_debit_note = ?, is_flagged = ?, is_dued = ?, due_date = ?, accrual_date = ?, schedule_date = ?, delete_date = ?, create_date = ?, value = ?, is_paid = ?,
                  cost_center_value_type = ?, paid_value = ?, open_value = ?, stakeholder_id = ?, stakeholder_name = ?, stakeholder_type = ?, stakeholder_is_deleted = ?, description = ?, has_installment = ?,
                   installment_id = ?, has_recurrence = ?, has_open_entry_promise = ?, has_entry_promise = ?, auto_generate_entry_promise = ?, has_invoice = ?,
                 has_pending_invoice = ?, has_schedule_invoice = ?, auto_generate_nfse_type = ?, is_payment_scheduled = ? where schedule_id = ?`, [
@@ -66,6 +66,7 @@ async function inserirDadosNoBancoDeDados(data) {
                     item.dueDate || null,
                     item.accrualDate || null,
                     item.scheduleDate || null,
+                    item.deleteDate || null,
                     item.createDate || null,
                     item.value || null,
                     item.isPaid || null,
@@ -93,10 +94,10 @@ async function inserirDadosNoBancoDeDados(data) {
             } else {
                 const query =
                      `INSERT INTO scheduled_payments (schedule_id, category_id, category_name, category_type, category_parent_id, category_parent_name, cost_center_id, cost_center_percent, cost_center_name, cost_center_is_deleted, type,
-                  is_entry, is_bill, is_debit_note, is_flagged, is_dued, due_date, accrual_date, schedule_date, create_date, value, is_paid, cost_center_value_type, paid_value, open_value, stakeholder_id, stakeholder_name,
+                  is_entry, is_bill, is_debit_note, is_flagged, is_dued, due_date, accrual_date, schedule_date, delete_date, create_date, value, is_paid, cost_center_value_type, paid_value, open_value, stakeholder_id, stakeholder_name,
                   stakeholder_type, stakeholder_is_deleted, description, has_installment, installment_id, has_recurrence, has_open_entry_promise, has_entry_promise, auto_generate_entry_promise, has_invoice,
                   has_pending_invoice, has_schedule_invoice, auto_generate_nfse_type, is_payment_scheduled) 
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
                 await connection.query(query, [
                     item.scheduleId || null,
                      item.categories[0].categoryId,
@@ -117,6 +118,7 @@ async function inserirDadosNoBancoDeDados(data) {
                      item.dueDate || null,
                      item.accrualDate || null,
                      item.scheduleDate || null,
+                     item.deleteDate || null,
                      item.createDate || null,
                      item.value || null,
                      item.isPaid || null,
@@ -158,10 +160,12 @@ async function excluirRegistrosAusentesNoBancoDeDados(dataFromAPI) {
 
     try {
         // Passo 1: Buscar todos os IDs no banco de dados
-        const [existingRecords] = await connection.execute("SELECT schedule_id FROM scheduled_payments");
+        const [existingRecords] = await connection.execute("SELECT schedule_id, delete_date FROM scheduled_payments");
 
         // Extrair os IDs dos registros no banco de dados
-        const existingRecordIds = existingRecords.map(record => record.schedule_id);
+        const existingRecordsToDelete = existingRecords.filter(record => {
+            return record.delete_date !== null && !dataFromAPI.some(item => item.scheduleId === record.schedule_id);
+        });
 
         // Passo 2: Comparar os IDs com os IDs da API e excluir registros ausentes
         for (const id of existingRecordIds) {
