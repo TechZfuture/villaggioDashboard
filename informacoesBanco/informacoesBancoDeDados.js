@@ -2,7 +2,7 @@ const dbConfig = {
   host: "localhost",
   user: "root",
   password: "",
-  database: "sistemaTeste",
+  database: "sistema",
 };
 
 module.exports = dbConfig;

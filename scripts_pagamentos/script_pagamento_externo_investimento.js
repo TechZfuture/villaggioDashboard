@@ -1,27 +1,15 @@
 const mysql = require("mysql2/promise");
 
-const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "sistema",
-};
+const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
+const apitoken = require("../informacoesAPI/informacoes");
 
 // Função para buscar os dados da API
 async function buscarDadosDaAPI() {
-  const apiToken = "0C1F3E7F408A4B6B95ADCA50E36BDE9B";
-  const apiUrl = `https://api.nibo.com.br/empresas/v1/payments?apitoken=${apiToken}`;
+  const apiUrl = `https://api.nibo.com.br/empresas/v1/payments?apitoken=${apitoken}`;
 
   try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(
-        `Erro na solicitação: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    return data.items; // Retorna apenas o array de objetos "items"
+    const data = await (await fetch(apiUrl)).json();
+    return data.items || [];
   } catch (error) {
     console.error("Erro ao buscar dados da API:", error);
     return [];
@@ -31,6 +19,7 @@ async function buscarDadosDaAPI() {
 // Função para inserir os dados no banco de dados
 async function inserirDadosNoBancoDeDados(data) {
   const connection = await mysql.createConnection(dbConfig);
+  let [atualizadas, inseridas] = [0, 0];
 
   try {
     for (const item of data) {

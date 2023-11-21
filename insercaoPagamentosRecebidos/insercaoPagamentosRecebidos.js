@@ -24,7 +24,7 @@ async function inserirDadosNoBancoDeDados(data) {
     for (const item of data) {
       const [existe] = await connection.execute(
         `SELECT * FROM paymentsReceivable id WHERE id = ?`,
-        [item.scheduleId]
+        [item.categories[0].id]
       );
 
       const query =
@@ -83,48 +83,46 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isPaymentScheduled || null,
               item.scheduledId || null,
             ]
-          : [
-              item.scheduleId || null,
-              item.category.id || null,
-              item.category.name || null,
-              item.value || null,
-              item.category.type || null,
-              item.categories[0].parent || null,
-              item.categories[0].parentId || null,
-              item.scheduleId || null,
-              item.type || null,
-              item.isEntry,
-              item.isBill,
-              item.isDebitNote,
-              item.isFlagged,
-              item.isDued,
-              item.dueDate || null,
-              item.accrualDate || null,
-              item.scheduleDate || null,
-              item.createDate || null,
-              item.isPaid,
-              item.costCenterValueType,
-              item.paidValue,
-              item.openValue || null,
-              item.stakeholder.id || null,
-              item.stakeholder.type || null,
-              item.stakeholder.name || null,
-              item.stakeholder.isDeleted,
-              item.description || null,
-              item.reference,
-              item.hasInstallment,
-              item.installmentId,
-              item.hasRecurrence,
-              item.hasOpenEntryPromise,
-              item.hasEntryPromise,
-              item.autoGenerateEntryPromise,
-              item.hasInvoice,
-              item.hasPendingInvoice,
-              item.hasScheduleInvoice,
-              item.autoGenerateNFSeType,
-              item.isPaymentScheduled,
-              item.id || null,
-            ];
+          : [item.categories[0].id || null,
+             item.categories[0].categoryId || null,
+             item.categories[0].categoryName || null,
+             item.categories[0].value || null,
+             item.categories[0].type || null,
+             item.categories[0].parent || null,
+             item.categories[0].parentId || null,
+             item.scheduleId || null,
+             item.type || null,
+             item.isEntry || null,
+             item.isBill || null,
+             item.DebitNote || null,
+             item.isFlagged || null,
+             item.isDued || null,
+             item.dueDate || null,
+             item.accrualDate || null,
+             item.scheduleDate || null,
+             item.createDate || null,
+             item.isPaid || null,
+             item.costCenterValueType || null,
+             item.paidValue || null,
+             item.openValue || null,
+             item.stakeholder.id || null,
+             item.stakeholder.type || null,
+             item.stakeholder.name || null,
+             item.stakeholder.isDeleted || null,
+             item.description || null,
+             item.reference || null,
+             item.hasInstallment || null,
+             item.installmentId || null,
+             item.hasRecurrence || null,
+             item.hasOpenEntryPromise || null,
+             item.hasEntryPromise || null,
+             item.autoGenerateEntryPromise || null,
+             item.hasInvoice || null,
+             item.hasPendingInvoice || null,
+             item.hasScheduleInvoice || null,
+             item.autoGenerateNFSeType || null,
+             item.isPaymentScheduled || null
+             ];
 
       const [result] = await connection.execute(query, params);
 
@@ -161,8 +159,6 @@ async function deletarDadosNoBancoDeDados(data) {
         console.log(`Registro com idChild ${idChild.id} foi excluído.`);
       }
     }
-
-    console.log("Dados deletados no banco de dados com sucesso.");
   } catch (error) {
     console.error("Erro ao deletar dados no banco de dados:", error);
   } finally {

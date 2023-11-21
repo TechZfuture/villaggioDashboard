@@ -37,6 +37,5 @@ create table paymentsReceivable(
      hasPendingInvoice boolean,
      hasScheduleInvoice boolean,
      autoGenerateNfseType int,
-     isPaymentScheduled boolean,
+     isPaymentScheduled boolean
  )	
- 
