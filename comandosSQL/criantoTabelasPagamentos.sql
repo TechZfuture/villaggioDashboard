@@ -38,7 +38,7 @@ create table externalPayments(
     isReconciliated boolean,
     isTransfer boolean,
     isFlagged boolean, 
-    costCenteId varchar(40), 
+    costCenterId varchar(40), 
     costCenterName varchar(50),
     costCenterPercent decimal(12, 2),
     costCenterValue decimal(12, 2)
