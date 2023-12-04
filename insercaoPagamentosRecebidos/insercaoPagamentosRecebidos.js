@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const moment = require("moment");
 
 const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
 const apitoken = require("../informacoesAPI/informacoes");
@@ -13,6 +14,10 @@ async function buscarDadosDaAPI() {
     console.error("Erro ao buscar dados da API:", error);
     return [];
   }
+}
+
+function formatarDataParaMySQL(data) {
+  return moment(data).format("YYYY-MM-DD HH:mm:ss");
 }
 
 // Função para inserir os dados no banco de dados
@@ -56,10 +61,10 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isDebitNote || null,
               item.isFlagged || null,
               item.isDued || null,
-              item.dueDate || null,
-              item.accrualDate || null,
-              item.scheduleDate || null,
-              item.createDate || null,
+              formatarDataParaMySQL(item.dueDate) || null,
+              formatarDataParaMySQL(item.accrualDate) || null,
+              formatarDataParaMySQL(item.scheduleDate) || null,
+              formatarDataParaMySQL(item.createDate) || null,
               item.isPaid || null,
               item.costCenterValueType || null,
               item.paidValue || null,
@@ -83,46 +88,47 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isPaymentScheduled || null,
               item.scheduledId || null,
             ]
-          : [item.categories[0].id || null,
-             item.categories[0].categoryId || null,
-             item.categories[0].categoryName || null,
-             item.categories[0].value || null,
-             item.categories[0].type || null,
-             item.categories[0].parent || null,
-             item.categories[0].parentId || null,
-             item.scheduleId || null,
-             item.type || null,
-             item.isEntry || null,
-             item.isBill || null,
-             item.DebitNote || null,
-             item.isFlagged || null,
-             item.isDued || null,
-             item.dueDate || null,
-             item.accrualDate || null,
-             item.scheduleDate || null,
-             item.createDate || null,
-             item.isPaid || null,
-             item.costCenterValueType || null,
-             item.paidValue || null,
-             item.openValue || null,
-             item.stakeholder.id || null,
-             item.stakeholder.type || null,
-             item.stakeholder.name || null,
-             item.stakeholder.isDeleted || null,
-             item.description || null,
-             item.reference || null,
-             item.hasInstallment || null,
-             item.installmentId || null,
-             item.hasRecurrence || null,
-             item.hasOpenEntryPromise || null,
-             item.hasEntryPromise || null,
-             item.autoGenerateEntryPromise || null,
-             item.hasInvoice || null,
-             item.hasPendingInvoice || null,
-             item.hasScheduleInvoice || null,
-             item.autoGenerateNFSeType || null,
-             item.isPaymentScheduled || null
-             ];
+          : [
+              item.categories[0].id || null,
+              item.categories[0].categoryId || null,
+              item.categories[0].categoryName || null,
+              item.categories[0].value || null,
+              item.categories[0].type || null,
+              item.categories[0].parent || null,
+              item.categories[0].parentId || null,
+              item.scheduleId || null,
+              item.type || null,
+              item.isEntry || null,
+              item.isBill || null,
+              item.DebitNote || null,
+              item.isFlagged || null,
+              item.isDued || null,
+              formatarDataParaMySQL(item.dueDate) || null,
+              formatarDataParaMySQL(item.accrualDate) || null,
+              formatarDataParaMySQL(item.scheduleDate) || null,
+              formatarDataParaMySQL(item.createDate) || null,
+              item.isPaid || null,
+              item.costCenterValueType || null,
+              item.paidValue || null,
+              item.openValue || null,
+              item.stakeholder.id || null,
+              item.stakeholder.type || null,
+              item.stakeholder.name || null,
+              item.stakeholder.isDeleted || null,
+              item.description || null,
+              item.reference || null,
+              item.hasInstallment || null,
+              item.installmentId || null,
+              item.hasRecurrence || null,
+              item.hasOpenEntryPromise || null,
+              item.hasEntryPromise || null,
+              item.autoGenerateEntryPromise || null,
+              item.hasInvoice || null,
+              item.hasPendingInvoice || null,
+              item.hasScheduleInvoice || null,
+              item.autoGenerateNFSeType || null,
+              item.isPaymentScheduled || null,
+            ];
 
       const [result] = await connection.execute(query, params);
 

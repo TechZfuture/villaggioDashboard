@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const moment = require("moment");
 
 const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
 const apitoken = require("../informacoesAPI/informacoes");
@@ -14,6 +15,10 @@ async function buscarDadosDaAPI() {
     console.error("Erro ao buscar dados da API:", error);
     return [];
   }
+}
+
+function formatarDataParaMySQL(data) {
+  return moment(data).format("YYYY-MM-DD HH:mm:ss");
 }
 
 // Função para inserir os dados no banco de dados
@@ -60,7 +65,7 @@ async function inserirDadosNoBancoDeDados(data) {
                 item.category.type || null,
                 item.categories[0].parentId || null,
                 item.categories[0].parent || null,
-                item.date || null,
+                formatarDataParaMySQL(item.date) || null,
                 item.identifier || null,
                 item.value || null,
                 item.description || null,
@@ -91,7 +96,7 @@ async function inserirDadosNoBancoDeDados(data) {
                 item.category.type || null,
                 item.categories[0].parentId || null,
                 item.categories[0].parent || null,
-                item.date || null,
+                formatarDataParaMySQL(item.date) || null,
                 item.identifier || null,
                 item.value || null,
                 item.description || null,

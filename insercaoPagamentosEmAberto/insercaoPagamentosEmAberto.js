@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const moment = require("moment");
 
 const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
 const apitoken = require("../informacoesAPI/informacoes");
@@ -13,6 +14,10 @@ async function buscarDadosDaAPI() {
     console.error("Erro ao buscar dados da API:", error);
     return [];
   }
+}
+
+function formatarDataParaMySQL(data) {
+  return moment(data).format("YYYY-MM-DD HH:mm:ss");
 }
 
 async function inserirDadosNoBancoDeDados(data) {
@@ -54,10 +59,10 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isDebitNote || null,
               item.isFlagged || null,
               item.isDued || null,
-              item.dueDate || null,
-              item.accrualDate || null,
-              item.scheduleDate || null,
-              item.createDate || null,
+              formatarDataParaMySQL(item.dueDate) || null,
+              formatarDataParaMySQL(item.accrualDate) || null,
+              formatarDataParaMySQL(item.scheduleDate) || null,
+              formatarDataParaMySQL(item.createDate) || null,
               item.isPaid || null,
               item.costCenterValueType || null,
               item.paidValue || null,
@@ -94,10 +99,10 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isDebitNote || null,
               item.isFlagged || null,
               item.isDued || null,
-              item.dueDate || null,
-              item.accrualDate || null,
-              item.scheduleDate || null,
-              item.createDate || null,
+              formatarDataParaMySQL(item.dueDate) || null,
+              formatarDataParaMySQL(item.accrualDate) || null,
+              formatarDataParaMySQL(item.scheduleDate) || null,
+              formatarDataParaMySQL(item.createDate) || null,
               item.isPaid || null,
               item.costCenterValueType || null,
               item.paidValue || null,

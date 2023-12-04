@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const moment = require("moment");
 
 const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
 const apitoken = require("../informacoesAPI/informacoes");
@@ -14,6 +15,10 @@ async function buscarDadosDaAPI() {
     console.error("Erro ao buscar dados da API:", error);
     return [];
   }
+}
+
+function formatarDataParaMySQL(data) {
+  return moment(data).format("YYYY-MM-DD HH:mm:ss");
 }
 
 // Função para inserir os dados no banco de dados
@@ -58,11 +63,11 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isDebitNote || null,
               item.isFlagged || null,
               item.isDued || null,
-              item.dueDate || null,
-              item.accrualDate || null,
-              item.scheduleDate || null,
-              item.deleteDate || null,
-              item.createDate || null,
+              formatarDataParaMySQL(item.dueDate) || null,
+              formatarDataParaMySQL(item.accrualDate) || null,
+              formatarDataParaMySQL(item.scheduleDate) || null,
+              item.deleteDate ? formatarDataParaMySQL(item.deleteDate) : null,
+              formatarDataParaMySQL(item.createDate) || null,
               item.value || null,
               item.isPaid || null,
               item.costCenterValueType || null,
@@ -102,11 +107,11 @@ async function inserirDadosNoBancoDeDados(data) {
               item.isDebitNote || null,
               item.isFlagged || null,
               item.isDued || null,
-              item.dueDate || null,
-              item.accrualDate || null,
-              item.scheduleDate || null,
-              item.deleteDate || null,
-              item.createDate || null,
+              formatarDataParaMySQL(item.dueDate) || null,
+              formatarDataParaMySQL(item.accrualDate) || null,
+              formatarDataParaMySQL(item.scheduleDate) || null,
+              item.deleteDate ? formatarDataParaMySQL(item.deleteDate) : null,
+              formatarDataParaMySQL(item.createDate) || null,
               item.value || null,
               item.isPaid || null,
               item.costCenterValueType || null,
@@ -148,29 +153,33 @@ async function inserirDadosNoBancoDeDados(data) {
 
 // Função para excluir registros que não existem na API
 async function deletarDadosNoBancoDeDados(data) {
-    const pool = await mysql.createPool(dbConfig);
-    let excluidas = 0;
+  const connection = await mysql.createConnection(dbConfig);
+  let excluidas = 0;
 
-    try {
-        const existingRecordIds = new Set(data.map((item) => String(item.scheduleId)));
-        const [registrosNoBanco] = await pool.execute("SELECT scheduleId FROM scheduledPayments WHERE deleteDate IS NOT NULL");
+  try {
+      // Consulta para obter registros com deleteDate não nulo
+      const [registrosNoBanco] = await connection.execute(
+          "SELECT scheduleId FROM scheduledPayments WHERE deleteDate IS NOT NULL"
+      );
 
-        for (const { scheduleId } of registrosNoBanco) {
-            if (existingRecordIds.has(String(scheduleId))) {
-                await pool.execute(
-                    "DELETE FROM scheduledPayments WHERE scheduleId = ?",
-                    [scheduleId]
-                );
-                excluidas++;
-            }
-        }
-        console.log(`\n${excluidas} pagamentos foram excluídos no NIBO !!`);
-    } catch (error) {
-        console.error("Erro ao verificar e excluir registros ausentes:", error);
-    } finally {
-        pool.end(); // O pool é encerrado, liberando a conexão para ser reutilizada
-    }
+      // Exibindo os IDs dos registros que serão excluídos (apenas para fins de depuração)
+      console.log("IDs dos registros a serem excluídos:", registrosNoBanco.map(({ scheduleId }) => scheduleId));
+
+      // Instrução DELETE com condição para excluir apenas registros com deleteDate não nulo
+      const [result] = await connection.execute(
+          "DELETE FROM scheduledPayments WHERE deleteDate IS NOT NULL"
+      );
+
+      excluidas = result.affectedRows;
+
+      console.log(`\n${excluidas} pagamentos foram excluídos no NIBO !!`);
+  } catch (error) {
+      console.error("Erro ao excluir registros com deleteDate não nulo:", error);
+  } finally {
+      connection.end(); // A conexão é encerrada
+  }
 }
+
 
 (async () => {
   try {
