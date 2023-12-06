@@ -23,9 +23,9 @@ create table paymentsReceivable(
      openValue decimal(12,2),
      stakeholderId varchar(40),
      stakeholderType char(15),
-     stakeholderName varchar(50),
+     stakeholderName varchar(250),
      stakeholderIsDeleted boolean,
-     description varchar(50),
+     description varchar(250),
      reference varchar(40),
      hasInstallment boolean,
      installmentId varchar(40),
@@ -37,5 +37,6 @@ create table paymentsReceivable(
      hasPendingInvoice boolean,
      hasScheduleInvoice boolean,
      autoGenerateNfseType int,
-     isPaymentScheduled boolean
+     isPaymentScheduled boolean,
+     negativo boolean
  )	

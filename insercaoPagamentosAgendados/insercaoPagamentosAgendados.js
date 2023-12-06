@@ -162,6 +162,9 @@ async function deletarDadosNoBancoDeDados(data) {
           "SELECT scheduleId FROM scheduledPayments WHERE deleteDate IS NOT NULL"
       );
 
+      // Exibindo os IDs dos registros que serão excluídos (apenas para fins de depuração)
+      //console.log("IDs dos registros a serem excluídos:", registrosNoBanco.map(({ scheduleId }) => scheduleId));
+
       // Instrução DELETE com condição para excluir apenas registros com deleteDate não nulo
       const [result] = await connection.execute(
           "DELETE FROM scheduledPayments WHERE deleteDate IS NOT NULL"

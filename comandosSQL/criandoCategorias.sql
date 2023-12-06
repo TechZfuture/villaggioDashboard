@@ -15,6 +15,8 @@ CREATE TABLE childCategory(
     subgroupName VARCHAR(100),
     groupType INT,
     referenceCodeKey VARCHAR(40),
+    codDRE INT,
+    tipoCategoria INT,
     FOREIGN KEY (referenceCodeKey) REFERENCES parentCategory(idParent)
 );
 

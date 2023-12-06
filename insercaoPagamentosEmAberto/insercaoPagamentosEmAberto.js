@@ -131,7 +131,7 @@ async function inserirDadosNoBancoDeDados(data) {
         : (inseridas += result.affectedRows);
     }
     console.log(
-      `\n${atualizadas} consultas atualizadas no banco de dados.\n${inseridas} consultas inseridas no banco de dados.\n`
+      `\n${atualizadas} consultas atualizadas no banco de dados.\n${inseridas} consultas inseridas no banco de dados.`
     );
   } catch (error) {
     console.error("Erro ao inserir dados no banco de dados:", error);
