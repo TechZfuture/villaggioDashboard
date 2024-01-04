@@ -169,7 +169,6 @@ async function deletarDadosNoBancoDeDados(data) {
           "DELETE FROM pastDuePayments WHERE idPastDuePayment = ?",
           [idPastDuePayment]
         );
-        console.log(`\nRegistro com ID ${id} foi excluído.`);
       }
     }
   } catch (error) {

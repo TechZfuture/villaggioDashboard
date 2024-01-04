@@ -1,8 +1,10 @@
-const mysql = require("mysql2/promise");
-const moment = require("moment");
+const mysql = require("mysql2/promise"); // Módulo para interagir com o banco de dados
+const moment = require("moment"); // Módulo para manipulação de datas
 
-const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
-const apitoken = require("../informacoesAPI/informacoes");
+const dbConfig = require("../informacoesBanco/informacoesBancoDeDados"); // Importo as informações do banco
+const apitoken = require("../informacoesAPI/informacoes"); // Importa a chave API
+
+
 
 async function buscarDadosDaAPI() {
   const apiUrl = `https://api.nibo.com.br/empresas/v1/schedules/debit/opened?apitoken=${apitoken}`;
@@ -26,6 +28,7 @@ async function inserirDadosNoBancoDeDados(data) {
 
   try {
     for (const item of data) {
+      
       const [existe] = await connection.execute(
         "SELECT * FROM openPayments WHERE id = ?",
         [item.categories[0].id]
