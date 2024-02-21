@@ -43,8 +43,8 @@ async function inserirDadosNoBancoDeDados(data) {
           : `INSERT INTO pastDuePayments (idPastDuePayment, idCategory, nameCategory, typeCategory, idParentCategory, nameParentCategory, idCostCenter, percentCostCenter, descriptionCostCenter, costCenterIsDeleted, idSchedule, type,
             isEntry, isBill, isDebitNote, isFlagged, isDued, dueDate, accrualDate, scheduleDate, createDate, value, isPaid, costCenterValueType, paidValue, openValue, idStakeholder, nameStakeholder,
             typeStakeholder, stakeholderIsDeleted, description, reference, hasInstallment, idInstallment, hasRecurrence, hasOpenEntryPromise, hasEntryPromise, autoGenerateEntryPromise, hasInvoice,
-            hasPendingInvoice, hasScheduleInvoice, autoGenerateNfseType, isPaymentScheduled) 
- VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+            hasPendingInvoice, hasScheduleInvoice, autoGenerateNfseType, isPaymentScheduled, status, valorCorreto) 
+ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
       const params =
         existe.length > 0
@@ -137,6 +137,8 @@ async function inserirDadosNoBancoDeDados(data) {
               item.hasScheduleInvoice || null,
               item.autoGenerateNFSeType || null,
               item.isPaymentScheduled || null,
+              null,
+              null
             ];
 
       const [result] = await connection.execute(query, params);
@@ -178,12 +180,51 @@ async function deletarDadosNoBancoDeDados(data) {
   }
 }
 
+async function inserirColunaPagoOuNaoPago(data){
+  const connection = await mysql.createConnection(dbConfig)
+
+  try {
+    // Atualiza o status com base na diferença entre openValue e paidValue
+    const query = `
+      UPDATE pastDuePayments
+      SET status = "A Realizar"
+    `
+    await connection.execute(query)
+  } catch (error) {
+    console.error('Erro ao inserir valor na coluna "status":', error)
+  } finally {
+    connection.end() // Fecha a conexão com o banco de dados
+  }
+}
+
+async function inserirValorCorreto(data){
+  const connection = await mysql.createConnection(dbConfig)
+
+  try {
+    // Atualiza o status com base na diferença entre openValue e paidValue
+    const query = `
+      UPDATE pastDuePayments
+      SET valorCorreto = CASE
+      WHEN paidValue IS NOT NULL THEN value + paidValue
+      ELSE value
+      END;
+    `
+    await connection.execute(query)
+  } catch (error) {
+    console.error('Erro ao inserir valor na coluna "status":', error)
+  } finally {
+    connection.end() // Fecha a conexão com o banco de dados
+  }
+}
+
 (async () => {
     try {
       const dadosDaAPI = await buscarDadosDaAPI();
       if (dadosDaAPI.length > 0) {
         await inserirDadosNoBancoDeDados(dadosDaAPI);
         await deletarDadosNoBancoDeDados(dadosDaAPI);
+        await inserirColunaPagoOuNaoPago()
+        await inserirValorCorreto()
       }
     } catch (error) {
       console.error("Erro no processo:", error);

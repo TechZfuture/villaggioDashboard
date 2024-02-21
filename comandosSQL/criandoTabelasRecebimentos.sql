@@ -32,7 +32,7 @@ create table externalIncomingBills(
     categoryParentId varchar(40),
     categoryParentName varchar(50),
     date datetime,
-    identifier varchar(50),
+    identifier varchar(350),
     value decimal (12, 2),
     description varchar(150),
     checkNumber varchar(200),
@@ -43,5 +43,7 @@ create table externalIncomingBills(
     costCenterName varchar(50),
     costCenterPercent decimal(12, 2),
     costCenterValue decimal(12, 2),
-    negativo boolean
+    status varchar(30),
+    negativo boolean,
+    valorCorreto decimal(12,2)
 );

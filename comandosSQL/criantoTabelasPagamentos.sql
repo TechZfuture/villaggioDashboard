@@ -42,5 +42,7 @@ create table externalPayments(
     costCenterName varchar(50),
     costCenterPercent decimal(12, 2),
     costCenterValue decimal(12, 2),
-    negativo boolean
+    negativo boolean,
+    status varchar(30),
+    valorCorreto decimal (12,2)
 );

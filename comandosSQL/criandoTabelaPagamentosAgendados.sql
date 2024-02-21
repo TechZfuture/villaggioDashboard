@@ -1,7 +1,7 @@
 CREATE TABLE scheduledPayments (
     scheduleId VARCHAR(40),
     categoryId VARCHAR(40),
-    categoryName VARCHAR(40),
+    categoryName VARCHAR(100),
     categoryType CHAR(3),
     categoryParentId VARCHAR(40),
     categoryParentName VARCHAR(50),

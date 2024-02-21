@@ -1,2 +1,2 @@
 @echo off
-node C:/Users/lguss/villagioScripts/insercaoSaldo/insercaoSaldo.js
+node C:/Users/lguss/projects/villaggio/automatizacaoNiboCorrigido/insercaoSaldo/insercaoSaldo.js

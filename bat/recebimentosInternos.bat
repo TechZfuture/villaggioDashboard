@@ -1,2 +1,2 @@
 @echo off
-node C:/Users/lguss/villagioScripts/inserindoRecebimentos/insercaoRecebimentosInternos.js
+node C:/Users/lguss/projects/villaggio/automatizacaoNiboCorrigido/inserindoRecebimentos/insercaoRecebimentosInternos.js

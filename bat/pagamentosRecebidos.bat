@@ -1,2 +1,2 @@
 @echo off
-node C:/Users/lguss/villagioScripts/insercaoPagamentosRecebidos/insercaoPagamentosRecebidos.js
+node C:/Users/lguss/projects/villaggio/automatizacaoNiboCorrigido/insercaoPagamentosRecebidos/insercaoPagamentosRecebidos.js

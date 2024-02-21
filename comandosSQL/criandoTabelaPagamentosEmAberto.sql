@@ -35,5 +35,7 @@ create table openPayments(
      hasPendingInvoice boolean,
      hasScheduleInvoice boolean,
      autoGenerateNfseType int,
-     isPaymentScheduled boolean
+     isPaymentScheduled boolean,
+     status varchar(30),
+     valorCorreto decimal(12, 2)
  )	

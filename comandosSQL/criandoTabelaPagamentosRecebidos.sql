@@ -38,5 +38,7 @@ create table paymentsReceivable(
      hasScheduleInvoice boolean,
      autoGenerateNfseType int,
      isPaymentScheduled boolean,
-     negativo boolean
+     negativo boolean,
+     status null,
+     valorCorreto decimal(12,2)
  )	

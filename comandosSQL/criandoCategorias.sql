@@ -26,7 +26,7 @@ CREATE TABLE subcategory_aux(
 
 CREATE TABLE subcategory(
 	name VARCHAR(50),
-    subgroupId VARCHAR(40),
+    subgroupId VARCHAR(40)
 );
 
 CREATE TABLE costCenter(

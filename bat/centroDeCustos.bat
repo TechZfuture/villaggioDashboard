@@ -1,2 +1,2 @@
 @echo off
-node C:/Users/lguss/villagioScripts/insercaoPagamentos/insercaoCentroDeCustos.js
+node C:/Users/lguss/projects/villaggio/automatizacaoNiboCorrigido/insercaoCentroDeCustos/insercaoCentroDeCustos.js
