@@ -44,8 +44,8 @@ async function inserirDadosNoBancoDeDados(data) {
             : `INSERT INTO externalIncomingBills (entryId, bankBalanceDateIsGreaterThanEntryDate,
           scheduleId, isVirtual, accountId, accountName, accountIsDeleted, stakeholderId,
            stakeholderName, stakeholderIsDeleted, categoryId, categoryName, categoryIsDeleted, categoryType, categoryParentId, categoryParentName,
-           date, identifier, value, description, checkNumber, isReconciliated, isTransfer, isFlagged, costCenterId, costCenterName, costCenterPercent, costCenterValue, status, negativo) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+           date, identifier, value, description, checkNumber, isReconciliated, isTransfer, isFlagged, costCenterId, costCenterName, costCenterPercent, costCenterValue, status, negativo, recebidoPago) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
         const params =
           existe.length > 0
@@ -108,6 +108,7 @@ async function inserirDadosNoBancoDeDados(data) {
                 item.costCenter?.costCenterDescription ?? null,
                 item.costCenters[0]?.percent ?? null,
                 item.costCenters[0]?.value ?? null,
+                null,
                 null,
                 null
               ]
@@ -217,6 +218,23 @@ async function inserirValorCorreto(data){
   }
 }
 
+async function inserirRecebimento(data){
+  const connection = await mysql.createConnection(dbConfig)
+
+  try {
+    // Atualiza o status com base na diferença entre openValue e paidValue
+    const query = `
+      UPDATE externalIncomingBills
+      SET recebidoPago = 'Recebimento'
+    `
+    await connection.execute(query)
+  } catch (error) {
+    console.error('Erro ao inserir valor na coluna "status":', error)
+  } finally {
+    connection.end() // Fecha a conexão com o banco de dados
+  }
+}
+
 
 ;(async () => {
   try {
@@ -227,6 +245,7 @@ async function inserirValorCorreto(data){
       await inserirNegativoEmTodosElementos()
       await inserirColunaPagoOuNaoPago()
       await inserirValorCorreto()
+      await inserirRecebimento()
     }
   } catch (error) {
     console.error('Erro no processo:', error)

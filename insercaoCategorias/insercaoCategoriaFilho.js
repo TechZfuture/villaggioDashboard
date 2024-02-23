@@ -163,6 +163,49 @@ async function atualizarTipoCategoriaPorReferenceCodeKey() {
   }
 }
 
+async function teste(){
+  const connection = await mysql.createConnection(dbConfig)
+  const valores = [
+    'Consultoria e compatibilização de projetos',
+    'Custo manutenção terreno',
+    'Orçamento',
+    'Comercial Distribution Fee',
+    'Despesas cartórarias',
+    'Honorário advocatícios',
+    'Despesas Financeiras'
+  ];
+  
+  try {
+    // Executar a consulta para selecionar as linhas
+    const [rows, fields] = await connection.execute(`SELECT * FROM childCategory WHERE name IN (${valores.map(val => `'${val}'`).join(',')})`);
+    
+    // Iterar sobre os resultados
+    for (const row of rows) {
+      // Verificar cada nome e atualizar o ID correspondente
+      if (row.name == "Consultoria e compatibilização de projetos") 
+        await connection.execute(`UPDATE childCategory SET id = 76 WHERE name = ?`, [row.name]);
+      else if (row.name == "Custo manutenção terreno")
+        await connection.execute(`UPDATE childCategory SET id = 77 WHERE name = ?`, [row.name]);
+      else if (row.name == "Orçamento")
+        await connection.execute(`UPDATE childCategory SET id = 78 WHERE name = ?`, [row.name]);
+      else if (row.name == "Comercial Distribution Fee")
+        await connection.execute(`UPDATE childCategory SET id = 79 WHERE name = ?`, [row.name]);
+      else if (row.name == "Despesas cartórarias")
+        await connection.execute(`UPDATE childCategory SET id = 80 WHERE name = ?`, [row.name]);
+      else if (row.name == "Honorário advocatícios")
+        await connection.execute(`UPDATE childCategory SET id = 81 WHERE name = ?`, [row.name]);
+      else if (row.name == "Despesas Financeiras")
+        await connection.execute(`UPDATE childCategory SET id = 82 WHERE name = ?`, [row.name]);
+    }
+    console.log('\nAtualização concluída com sucesso.');
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+  } finally {
+    // Fechar conexão com o banco de dados
+    connection.end();
+  }
+}
+
 // Executa o processo
 ;(async () => {
   try {
@@ -172,6 +215,7 @@ async function atualizarTipoCategoriaPorReferenceCodeKey() {
       await deletarDadosNoBancoDeDados(dadosDaAPI)
       await atualizarTipoCategoria()
       await atualizarTipoCategoriaPorReferenceCodeKey()
+      await teste()
     }
   } catch (error) {
     console.error('Erro no processo:', error)

@@ -45,5 +45,6 @@ create table externalIncomingBills(
     costCenterValue decimal(12, 2),
     status varchar(30),
     negativo boolean,
-    valorCorreto decimal(12,2)
+    valorCorreto decimal(12,2),
+    recebidoPago varchar(20)
 );
