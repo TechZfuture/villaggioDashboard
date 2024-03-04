@@ -1,7 +1,7 @@
 const mysql = require("mysql2/promise");
 
 const dbConfig = require('../informacoesBanco/informacoesBancoDeDados');
-const apitoken = require('../informacoesAPI/informacoes');
+const apitoken = require('../../../informacoesAPI/villaggio')
 
 // Função para buscar os dados da API - CATEGORIA PAI
 async function buscarDadosDaAPI() {

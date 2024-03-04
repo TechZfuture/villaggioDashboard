@@ -2,8 +2,7 @@ const mysql = require('mysql2/promise')
 const moment = require('moment')
 
 const dbConfig = require('../informacoesBanco/informacoesBancoDeDados')
-const apitoken = require('../informacoesAPI/informacoes')
-
+const apitoken = require('../../../informacoesAPI/villaggio')
 // Função para buscar os dados da API
 async function buscarDadosDaAPI() {
   const apiUrl = `https://api.nibo.com.br/empresas/v1/receipts?apitoken=${apitoken}`

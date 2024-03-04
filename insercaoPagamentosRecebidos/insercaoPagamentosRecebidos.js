@@ -2,7 +2,7 @@ const mysql = require("mysql2/promise");
 const moment = require("moment");
 
 const dbConfig = require("../informacoesBanco/informacoesBancoDeDados");
-const apitoken = require("../informacoesAPI/informacoes");
+const apitoken = require('../../../informacoesAPI/villaggio')
 
 async function buscarDadosDaAPI() {
   const apiUrl = `https://api.nibo.com.br/empresas/v1/schedules/credit/opened?apitoken=${apitoken}`;
